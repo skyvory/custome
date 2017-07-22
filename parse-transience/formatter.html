@@ -23,6 +23,8 @@
     var formatted;
     function merge() {
       formatted = da + br + " ";
+      formatted = formatted.replace("/", "／");
+      formatted = formatted.replace("?", "？");
       var copyarea = document.querySelector('#format');
       copyarea.value = formatted;
       // var val = document.getElementById('format').value;
