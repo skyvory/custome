@@ -74,6 +74,7 @@
       brandMatch = brandMatch[1].trim();
       brandMatch = brandMatch.replace("（このブランドの作品一覧）", "");
       brandMatch = brandMatch.replace("（このサークルの作品一覧）", "");
+      brandMatch = brandMatch.replace("マイジャンル登録", "");
       releaseMatch = releaseMatch[1].trim();
       releaseMatch = releaseMatch.replace(/\D/g,'');
       document.getElementById('date').value = releaseMatch;
