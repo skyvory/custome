@@ -52,10 +52,11 @@
 
     function parseSource() {
       var sourceText = document.getElementById('source').value;
-      console.log(sourceText);
+      // console.log(sourceText);
       if(sourceText === '') {
         return;
       }
+      sourceText = "\n" + sourceText;
       // DLSite source
       var brandMatch = sourceText.match(/[\n\r][ \t]*サークル名[ \t]*([^\n\r]*)/i);
       var releaseMatch = sourceText.match(/[\n\r][ \t]*販売日[ \t]*([^\n\r]*)/i);
@@ -66,6 +67,7 @@
       if(releaseMatch === null) {
         releaseMatch = sourceText.match(/[\n\r][ \t]*発売日[ \t]*([^\n\r]*)/i);
       }
+      // console.log(brandMatch);
       brandMatch = brandMatch[1].trim();
       brandMatch = brandMatch.replace("（このブランドの作品一覧）", "");
       releaseMatch = releaseMatch[1].trim();
