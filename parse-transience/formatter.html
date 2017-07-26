@@ -72,6 +72,10 @@
       if(releaseMatch === null) {
         releaseMatch = sourceText.match(/[\n\r][ \t]*発売日[ \t]*([^\n\r]*)/i);
       }
+      // DLSite professional source
+      if(brandMatch === null) {
+        var brandMatch = sourceText.match(/[\n\r][ \t]*ブランド名[ \t]*([^\n\r]*)/i);
+      }
       // console.log(brandMatch);
       brandMatch = brandMatch[1].trim();
       brandMatch = brandMatch.replace("（このブランドの作品一覧）", "");
@@ -79,6 +83,7 @@
       brandMatch = brandMatch.replace("マイジャンル登録", "");
       brandMatch = brandMatch.replace("フォローする", "");
       releaseMatch = releaseMatch[1].trim();
+      console.log(releaseMatch);
       releaseMatch = releaseMatch.replace(/\D/g,'');
       document.getElementById('date').value = releaseMatch;
       document.getElementById('brand').value = brandMatch;
