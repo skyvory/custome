@@ -5,8 +5,11 @@
     var da = '';
     function date() {
       var d = document.getElementById('date').value;
-      d.replace(/[^0-9.]/g, "");
+      // Never ever use input type number with string.replace() because it messes up the entire string replacement
+      d = d.replace(/[^0-9.]/g, "");
+      d = d.replace(/^\D+/g,'');
       d = d.trim();
+      document.getElementById('date').value = d;
       if(d.length > 6) {
         d = d.substring(d.length-6);
       }
@@ -98,7 +101,7 @@
 
 <body>
   Date
-  <input type="number" id="date" oninput="date();merge();" onClick="this.select();" style="height:30px;width:600px;">
+  <input type="text" id="date" oninput="date();merge();" onClick="this.select();" style="height:30px;width:600px;">
   <br />
   <br> Brand
   <input type="text" id="brand" oninput="brand();merge();" onClick="this.setSelectionRange(0, this.value.length)" style="height:30px;width:600px;">
