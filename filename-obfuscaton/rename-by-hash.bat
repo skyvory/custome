@@ -6,8 +6,8 @@ set directory=%~dp0
 :again
 if "%~1" == "" goto done
 
-echo "%~n1"
-echo "%~x1"
+REM echo "%~n1"
+REM echo "%~x1"
 
 REM echo "%~1"
 cd /d !directory!
@@ -23,7 +23,7 @@ for /F "tokens=*" %%A in (temp~~~.txt) do (
   )
 )
 
-echo !cut!
+REM echo !cut!
 
 REM rename files to hash value
 ren "%~1" "!cut!%~x1"
