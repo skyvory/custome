@@ -20,7 +20,6 @@ for /F "tokens=*" %%A in (temp~~~.txt) do (
     echo %%A
     set str=%%A
     set cut=!str:~0,40!
-    echo !cut!
   )
 )
 
@@ -34,30 +33,8 @@ REM rename txt to original file name
 ren "temp~~~.txt" "%~nx1.inf"
 move /Y "%~nx1.inf" "%~dp1"
 
-
 shift
 goto again
 :done
 pause
 exit
-
-REM cd /d %1
-echo Working on %~dp0
-
-%~dp0fciv -add "%1a.jpg" -sha1 > temp.txt
-
-set /a iteration = 0
-for /F "tokens=*" %%A in (temp.txt) do (
-  set /a iteration += 1
-  if !iteration! == 4 (
-    echo %%A
-    set str=%%A
-    set cut=!str:~0,40!
-    echo !cut!
-  )
-)
-
-echo !cut!
-
-
-pause
