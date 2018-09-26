@@ -129,6 +129,7 @@
             break;
           case 90:
             console.log("z");
+            undoAssortion();
             break;
           default:
             break;
@@ -160,10 +161,30 @@
         var destin = jQuery('#directory').val() + "\\" + 
         getDestinationName(shortcutKey) + "\\" + firstFileName;
         // console.log(destin);
-        requestAssortion(origin, destin);
+        requestAssortion(origin, destin, getDestinationName(shortcutKey));
       }
 
-      function requestAssortion(originPath, destinationPath) {
+      function undoAssortion() {
+        let firstMovedFilenameSelector = jQuery('.moved-list tr:first-child .file-name');
+        let firstMovedFilename = firstMovedFilenameSelector.text();
+        // console.log(firstMovedFilename);
+
+        if(firstMovedFilenameSelector.length == 0) {
+          console.log("No recent moved file found");
+          return;
+        }
+
+        let firstMovedFileDestinationSelector = jQuery('.moved-list tr:first-child .destination-name');
+        let firstMovedFileDestination = firstMovedFileDestinationSelector.text();
+        // console.log(firstMovedFileDestination);
+
+        let origin = jQuery('#directory').val() + "\\" + firstMovedFileDestination + "\\" + firstMovedFilename;
+        let destin = jQuery('#directory').val() + "\\" + firstMovedFilename;
+
+        requestUndoAssortion(origin, destin);
+      }
+
+      function requestAssortion(originPath, destinationPath, destinationName) {
         var request = jQuery.ajax({
           url: "./server.php",
           method: "POST",
@@ -177,7 +198,7 @@
 
         request.done(function (response) {
           console.log("RESP", response);
-          afterFileMoved();
+          afterFileMoved(destinationName);
         });
 
         request.fail(function (jqXHR, textStatus) {
@@ -185,7 +206,29 @@
         });
       }
 
-      function afterFileMoved() {
+      function requestUndoAssortion(originPath, destinationPath) {
+        let request = jQuery.ajax({
+          url: "./server.php",
+          method: "POST",
+          data: {
+            action: "assort",
+            origin_path: originPath,
+            destination_path: destinationPath
+          },
+          dataType: "JSON"
+        });
+
+        request.done(function (response) {
+          console.log("RESP", response);
+          afterFileUndo();
+        });
+
+        request.fail(function (jqXHR, textStatus) {
+          console.log("ERROR", textStatus);
+        });
+      }
+
+      function afterFileMoved(destinationName) {
         //> if tickedFile.length > 0
         let firstFilenameSelector = jQuery('.file-list tr:first-child .file-name');
         let firstFilename = firstFilenameSelector.text();
@@ -196,8 +239,25 @@
 
          jQuery(".moved-file-list").prepend(`
           <tr class="one-file">
+            <td class="destination-name">`+ destinationName +`</td>
             <td class="file-name">`+ firstFilename + `</td>
             <td><button type="button" class="unmove-button">unmove</td>
+          </tr>`);
+      }
+
+      function afterFileUndo() {
+        let firstMovedFilenameSelector = jQuery('.moved-list tr:first-child .file-name');
+        let firstMovedFilename = firstMovedFilenameSelector.text();
+        // console.log(firstMovedFilename);
+
+        let firstMovedFileSelector = jQuery('.moved-list tr:first-child');
+        firstMovedFileSelector.remove();
+
+        jQuery(".file-list").prepend(`
+          <tr class="one-file">
+            <td><input type="checkbox" name="tick" value="`+ firstMovedFilename + `" class="file-checkbox"></td>
+            <td class="file-name">`+ firstMovedFilename + `</td>
+            <td></td>
           </tr>`);
       }
 
