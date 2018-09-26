@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Sidebooks Assortment Support</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+  <script src="jquery-3.3.1.js"></script>
+</head>
+<body>
+  <input type="text" value="D:\#\test" id="directory">
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  Active category:
+  <input type="text" value="" class="active-category" disabled>
+  <button type="button" class="category-button" disabled>switch</button>
+  <br/>
+  <br/>
+  
+  <div class="main-content" style="display:flex;flex-direction:row">
+    <div class="origin-list" style="flex:1 45%;">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>tick</th>
+            <th>file</th>
+            <th>assort</th>
+          </tr>
+        </thead>
+        <tbody class="file-list">
+        </tbody>
+      </table>
+    </div>
+    <div class="moved-list" style="flex:1 45%">
+      moved
+      <table border="1">
+        <thead>
+          <tbody class="moved-file-list">
+          </tbody>
+        </thead>
+      </table>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var x = 3;
+    (function() {
+      // var assortmentDestinationFolders = ["HD", "HDA", "HDB", "HDC", "HDD", "HDE", "HM", "HMA", "HMB", "HMC", "HMD", "HME"];
+      // Syntax: [[<destination name>,<shortcut key>, <category>]]
+      // shortcut key must not be 'x'
+      var assortmentDestinationFolders = [
+        ["HD", "s", "Display"],
+        ["HDA", "a", "Display"],
+        ["HDB", "b", "Display"],
+        ["HDC", "c", "Display"],
+        ["HDD", "d", "Display"],
+        ["HDE", "e", "Display"],
+        ["HM", "s", "Manga"],
+        ["HMA", "a", "Manga"],
+        ["HMB", "b", "Manga"],
+        ["HMC", "c", "Manga"],
+        ["HMD", "d", "Manga"],
+        ["HME", "e", "Manga"]
+      ];
+
+      var activeCategoryIndex = 0;
+
+      $(document).ready(function() {
+        loadList();
+        jQuery('.active-category').val(assortmentDestinationFolders[activeCategoryIndex][2]);
+      });
+
+      document.onkeydown = triggerShortcut;
+
+      function triggerShortcut(e) {
+        e = e || window.event;
+        // if(e.keyCode == '48') {
+        //   console.log("0");
+        // }
+        switch (e.keyCode) {
+          case 96:
+            console.log("0");
+            break;
+          case 97:
+            console.log("1");
+            break;
+          case 98:
+           console.log("2");
+           break;
+          case 99:
+            console.log("3");
+            break;
+          case 100:
+            console.log("4");
+            break;
+          case 101:
+            console.log("5");
+            break;
+          case 107:
+            console.log("+");
+            break;
+          case 65:
+            console.log("a");
+            assort("a");
+            break;
+          case 66:
+            console.log("b");
+            assort("b");
+            break;
+          case 67:
+            console.log("c");
+            assort("c");
+            break;
+          case 68:
+            console.log("d");
+            assort("d");
+            break;
+          case 69:
+            console.log("e");
+            assort("e");
+            break;
+          case 83:
+            console.log("s");
+            assort("s");
+            break;
+          case 88:
+            console.log("x");
+            switchCategory();
+            break;
+          case 90:
+            console.log("z");
+            undoAssortion();
+            break;
+          default:
+            break;
+        }
+      }
+
+      function getDestinationName(key) {
+        var targetDestination;
+        jQuery.each(assortmentDestinationFolders, function(index, value) {
+          if(value[1] == key && value[2] == assortmentDestinationFolders[activeCategoryIndex][2]) {
+            targetDestination = value[0];
+            return false;
+          }
+        });
+        return targetDestination;
+      }
+
+      function assort(shortcutKey) {
+        // console.log(jQuery('.file-checkbox:checkbox:checked'));
+        var firstFileSelector = jQuery('.file-list tr:first-child .file-name');
+        var firstFileName = firstFileSelector.text();
+
+        if(firstFileSelector.length == 0) {
+          console.log("No more source file found");
+          return;
+        }
+        // console.log(firstFileName);
+        var origin = jQuery('#directory').val() + "\\" + firstFileName;
+        var destin = jQuery('#directory').val() + "\\" + 
+        getDestinationName(shortcutKey) + "\\" + firstFileName;
+        // console.log(destin);
+        requestAssortion(origin, destin, getDestinationName(shortcutKey));
+      }
+
+      function undoAssortion() {
+        let firstMovedFilenameSelector = jQuery('.moved-list tr:first-child .file-name');
+        let firstMovedFilename = firstMovedFilenameSelector.text();
+        // console.log(firstMovedFilename);
+
+        if(firstMovedFilenameSelector.length == 0) {
+          console.log("No recent moved file found");
+          return;
+        }
+
+        let firstMovedFileDestinationSelector = jQuery('.moved-list tr:first-child .destination-name');
+        let firstMovedFileDestination = firstMovedFileDestinationSelector.text();
+        // console.log(firstMovedFileDestination);
+
+        let origin = jQuery('#directory').val() + "\\" + firstMovedFileDestination + "\\" + firstMovedFilename;
+        let destin = jQuery('#directory').val() + "\\" + firstMovedFilename;
+
+        requestUndoAssortion(origin, destin);
+      }
+
+      function requestAssortion(originPath, destinationPath, destinationName) {
+        var request = jQuery.ajax({
+          url: "./server.php",
+          method: "POST",
+          data: {
+            action: "assort",
+            origin_path: originPath,
+            destination_path: destinationPath
+          },
+          dataType: "JSON"
+        });
+
+        request.done(function (response) {
+          console.log("RESP", response);
+          afterFileMoved(destinationName);
+        });
+
+        request.fail(function (jqXHR, textStatus) {
+          console.log("ERROR", textStatus);
+        });
+      }
+
+      function requestUndoAssortion(originPath, destinationPath) {
+        let request = jQuery.ajax({
+          url: "./server.php",
+          method: "POST",
+          data: {
+            action: "assort",
+            origin_path: originPath,
+            destination_path: destinationPath
+          },
+          dataType: "JSON"
+        });
+
+        request.done(function (response) {
+          console.log("RESP", response);
+          afterFileUndo();
+        });
+
+        request.fail(function (jqXHR, textStatus) {
+          console.log("ERROR", textStatus);
+        });
+      }
+
+      function afterFileMoved(destinationName) {
+        //> if tickedFile.length > 0
+        let firstFilenameSelector = jQuery('.file-list tr:first-child .file-name');
+        let firstFilename = firstFilenameSelector.text();
+
+        let firstFileSelector = jQuery('.file-list tr:first-child');
+        // console.log(firstFileSelector);
+        firstFileSelector.remove();
+
+         jQuery(".moved-file-list").prepend(`
+          <tr class="one-file">
+            <td class="destination-name">`+ destinationName +`</td>
+            <td class="file-name">`+ firstFilename + `</td>
+            <td><button type="button" class="unmove-button" disabled>unmove</td>
+          </tr>`);
+      }
+
+      function afterFileUndo() {
+        let firstMovedFilenameSelector = jQuery('.moved-list tr:first-child .file-name');
+        let firstMovedFilename = firstMovedFilenameSelector.text();
+        // console.log(firstMovedFilename);
+
+        let firstMovedFileSelector = jQuery('.moved-list tr:first-child');
+        firstMovedFileSelector.remove();
+
+        jQuery(".file-list").prepend(`
+          <tr class="one-file">
+            <td><input type="checkbox" name="tick" value="`+ firstMovedFilename + `" class="file-checkbox"></td>
+            <td class="file-name">`+ firstMovedFilename + `</td>
+            <td></td>
+          </tr>`);
+      }
+
+      function switchCategory() {
+        // console.log("ACTIVE", activeCategoryIndex);
+        // console.log("LEN", assortmentDestinationFolders.length);
+        if(activeCategoryIndex == assortmentDestinationFolders.length) {
+          activeCategoryIndex = 0;
+        }
+        var j = 0;
+        for(var i = activeCategoryIndex; j < assortmentDestinationFolders.length; i++) {
+          if(i >= assortmentDestinationFolders.length) {
+            i = 0;
+          }
+          if(assortmentDestinationFolders[i][2] != assortmentDestinationFolders[activeCategoryIndex][2]) {
+            activeCategoryIndex = i;
+            jQuery('.active-category').val(assortmentDestinationFolders[i][2]);
+            break;
+          }
+          j++;
+        }
+        // jQuery.each(assortmentDestinationFolders, function(index, value) {
+        //   console.log(index);
+        //   if(index >= activeCategoryIndex && assortmentDestinationFolders[index][2] != assortmentDestinationFolders[activeCategoryIndex][2]) {
+        //     activeCategoryIndex = index;
+        //     jQuery('.active-category').val(assortmentDestinationFolders[index][2]);
+        //     console.log("OK");
+        //     return false;
+        //   }
+        // })
+      }
+
+      function loadList() {
+        var directory = jQuery('#directory').val();
+        console.log("DIR", directory);
+        
+        var request = jQuery.ajax({
+          url: "./server.php",
+          method: "POST",
+          data: {
+            action: "getlist",
+            directory: directory
+          },
+          dataType: "JSON"
+        });
+
+        request.done(function(response) {
+          console.log("RESP", response);
+          displayList(response);
+        });
+
+        request.fail(function(jqXHR, textStatus) {
+          console.log("ERROR", textStatus);
+        });
+      }
+
+      function displayList(fileList) {
+        var assortButtons = "";
+        // jQuery.each(assortmentDestinationFolders, function(index, value) {
+        //   assortButtons = assortButtons + '<button type="button" class="assort-button" style="font-size:0.7em;">' + value[0] + '</button>';
+        // });
+
+        jQuery.each(fileList, function(index, value) {
+          jQuery(".file-list").append(`
+          <tr class="one-file">
+            <td><input type="checkbox" name="tick" value="`+value+`" class="file-checkbox"></td>
+            <td class="file-name">`+value+`</td>
+            <td>`+assortButtons+`</td>
+          </tr>`);
+        });
+      }
+      
+    })();
+  </script>
+</body>
+</html>
