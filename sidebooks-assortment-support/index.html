@@ -9,7 +9,7 @@
   <script src="jquery-3.3.1.js"></script>
 </head>
 <body>
-  <input type="text" value="D:\#\test" id="directory">
+  <input type="text" value="D:\#\test" id="directory"><button type="button" class="directory-load-button">load</button>
   &nbsp;&nbsp;&nbsp;&nbsp;
   Active category:
   <input type="text" value="" class="active-category" disabled>
@@ -70,6 +70,10 @@
       $(document).ready(function() {
         loadList();
         jQuery('.active-category').val(assortmentDestinationFolders[activeCategoryIndex][2]);
+      });
+
+      jQuery('.directory-load-button').click(function() {
+        loadList();
       });
 
       document.onkeydown = triggerShortcut;
@@ -317,10 +321,12 @@
 
         request.fail(function(jqXHR, textStatus) {
           console.log("ERROR", textStatus);
+          jQuery('.file-list .one-file').remove();
         });
       }
 
       function displayList(fileList) {
+        jQuery('.file-list .one-file').remove();
         var assortButtons = "";
         // jQuery.each(assortmentDestinationFolders, function(index, value) {
         //   assortButtons = assortButtons + '<button type="button" class="assort-button" style="font-size:0.7em;">' + value[0] + '</button>';
