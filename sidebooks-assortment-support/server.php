@@ -8,14 +8,21 @@ else if($_POST['action'] == 'assort') {
 }
 
 function getList() {
+
     $file_list = [];
     $directory = $_POST['directory'];
+
+    // $d = opendir("wfio://d:\\#\\test");
+    // print_r($d);
+    // closedir($d);
+    // return;
     
-    if ($handle = opendir($directory)) {
+    if ($handle = opendir("wfio://" . $directory)) {
+        // print_r("XX");
         while (false !== ($file = readdir($handle)))
         {
             $file_extension = strtolower(substr($file, strrpos($file, '.') + 1));
-            if ($file != "." && $file != ".." && $file_extension  == 'rar')
+            if ($file != "." && $file != ".." && in_array($file_extension, ['rar', 'zip', '7z']))
             {
                 // $thelist .= '<li><a href="'.$file.'">'.$file.'</a></li>';
                 $file_list[] = $file;
@@ -29,8 +36,8 @@ function getList() {
 
 function assort() {
     header('Content-type:application/json;charset=utf-8');
-    $origin_path = $_POST['origin_path'];
-    $destination_path = $_POST['destination_path'];
+    $origin_path = "wfio://" . $_POST['origin_path'];
+    $destination_path = "wfio://" . $_POST['destination_path'];
 
     if(!file_exists($origin_path)) {
         $response = ['status' => 'error', 'message' => 'source file is not found'];
