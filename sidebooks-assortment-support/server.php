@@ -30,6 +30,9 @@ function getList() {
         }
         closedir($handle);
     }
+
+    // rsort($file_list);
+    
     header('Content-type:application/json;charset=utf-8');
     echo json_encode($file_list);
 }
