@@ -1,6 +1,7 @@
 <html>
 
 <head>
+  <meta charset="UTF-8"> 
   <script>
     var da = '';
     function date() {
@@ -84,7 +85,10 @@
       brandMatch = brandMatch.replace("（このブランドの作品一覧）", "");
       brandMatch = brandMatch.replace("（このサークルの作品一覧）", "");
       brandMatch = brandMatch.replace("マイジャンル登録", "");
-      brandMatch = brandMatch.replace("フォローする", "");
+      console.log(brandMatch);
+      brandMatch = brandMatch.replace(/[\w\d\s]フォローする[\w\d\s]*/mg,"");
+      console.log(brandMatch);
+      // brandMatch = brandMatch.replace("フォローする", "");
       releaseMatch = releaseMatch[1].trim();
       console.log(releaseMatch);
       releaseMatch = releaseMatch.replace(/\D/g,'');
